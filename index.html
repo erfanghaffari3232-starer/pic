@@ -1,0 +1,43 @@
+<!doctype html>
+<html lang="fa" dir="rtl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Erfan Collage Maker</title>
+<style>
+*{box-sizing:border-box}body{margin:0;font-family:Tahoma,Arial,sans-serif;background:linear-gradient(135deg,#07111f,#10283b);color:#fff;min-height:100vh;padding:28px}
+.wrap{max-width:1000px;margin:auto}.card{background:rgba(255,255,255,.08);backdrop-filter:blur(14px);border:1px solid rgba(255,255,255,.15);border-radius:24px;padding:24px;box-shadow:0 20px 60px #0005}
+h1{text-align:center;margin:0 0 8px;font-size:32px}.sub{text-align:center;color:#b9c8d8;margin-bottom:22px}
+.inputs{display:grid;grid-template-columns:repeat(3,1fr);gap:12px}.upload{display:block;border:2px dashed #58738c;border-radius:16px;padding:18px;text-align:center;cursor:pointer;background:#ffffff08}.upload:hover{background:#ffffff12;border-color:#79b7e8}.upload input{display:none}.preview{margin-top:20px;background:#08121d;border-radius:18px;padding:14px;display:flex;justify-content:center;overflow:auto}canvas{max-width:100%;height:auto;border-radius:10px}
+.controls{display:flex;gap:10px;flex-wrap:wrap;justify-content:center;margin-top:18px}button{border:0;border-radius:12px;padding:13px 20px;font-weight:bold;cursor:pointer;background:#fff;color:#102030}button.primary{background:#4ecca3;color:#07111f}button:disabled{opacity:.4;cursor:not-allowed}
+.note{text-align:center;color:#9fb0c0;font-size:13px;margin-top:14px}
+@media(max-width:700px){.inputs{grid-template-columns:1fr}.card{padding:16px}}
+</style>
+</head>
+<body><div class="wrap"><div class="card">
+<h1>🖼️ Erfan Collage Maker</h1><div class="sub">سه عکس را به یک تصویر کلاژ تبدیل کن؛ بدون آپلود به سرور</div>
+<div class="inputs">
+<label class="upload">📷 عکس اصلی کودک<input id="a" type="file" accept="image/*"></label>
+<label class="upload">🏠 مرجع خانه ۱<input id="b" type="file" accept="image/*"></label>
+<label class="upload">🏠 مرجع خانه ۲<input id="c" type="file" accept="image/*"></label>
+</div>
+<div class="preview"><canvas id="canvas" width="1200" height="900"></canvas></div>
+<div class="controls"><button id="make" class="primary">ساخت کلاژ</button><button id="download" disabled>⬇️ دانلود JPG</button><button id="clear">پاک کردن</button></div>
+<div class="note">عکس‌ها فقط داخل مرورگر پردازش می‌شوند و به سرور ارسال نمی‌شوند.</div>
+</div></div>
+<script>
+const files={a:null,b:null,c:null}, canvas=document.getElementById('canvas'),ctx=canvas.getContext('2d');
+['a','b','c'].forEach(id=>document.getElementById(id).onchange=e=>files[id]=e.target.files[0]);
+function load(file){return new Promise((res,rej)=>{if(!file)return rej();let im=new Image();im.onload=()=>res(im);im.onerror=rej;im.src=URL.createObjectURL(file)})}
+function cover(im,x,y,w,h){let s=Math.max(w/im.width,h/im.height),nw=im.width*s,nh=im.height*s;ctx.drawImage(im,x+(w-nw)/2,y+(h-nh)/2,nw,nh)}
+document.getElementById('make').onclick=async()=>{
+if(!files.a||!files.b||!files.c){alert('هر سه عکس را انتخاب کن.');return}
+const [a,b,c]=await Promise.all([load(files.a),load(files.b),load(files.c)]);
+canvas.width=1400;canvas.height=1000;ctx.fillStyle='#fff';ctx.fillRect(0,0,1400,1000);
+cover(a,20,20,900,960);cover(b,940,20,440,470);cover(c,940,510,440,470);
+ctx.strokeStyle='#fff';ctx.lineWidth=12;ctx.strokeRect(20,20,900,960);ctx.strokeRect(940,20,440,470);ctx.strokeRect(940,510,440,470);
+document.getElementById('download').disabled=false;
+};
+document.getElementById('download').onclick=()=>{let link=document.createElement('a');link.download='erfan-collage.jpg';link.href=canvas.toDataURL('image/jpeg',.95);link.click()};
+document.getElementById('clear').onclick=()=>location.reload();
+</script></body></html>
